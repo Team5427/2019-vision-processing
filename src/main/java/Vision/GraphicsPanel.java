@@ -65,7 +65,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
             Object m = contours[0];
             Point[] points = ((MatOfPoint) m).toArray();
             for (Point p : points) {
-                contour.setRGB((int) p.x, (int) p.y, 2222610);
+                contour.setRGB((int) p.x, (int) p.y, -15340065);
+                //Left = -2222610, Right = -15340065
             }
 
             Point leftmostPoint = points[0];
