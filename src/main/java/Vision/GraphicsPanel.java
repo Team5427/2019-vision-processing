@@ -56,7 +56,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     public static final int LeftColor = -15340065;  //Purple
-    public static final int RightColor = -2222610;  //Cyan
+    public static final int RightColor = -15418960; //Cyan
 
     public void imageToContours(BufferedImage image) {
         pipeline.process(bufferedImageToMat(image));
@@ -96,6 +96,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
         for(HalfTarget h : leftTargets) {
             if(h.center.x<leftmostLeftTarget.center.x&&h.side==TargetSide.Left)
                 leftmostLeftTarget = h;
+        }
+        for(HalfTarget h : rightTargets) {
+
         }
 
         this.contours = new MatOfPoint[contours.length];
