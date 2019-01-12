@@ -6,21 +6,20 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.util.ArrayList;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
+import org.opencv.core.*;
 
-public class GraphicsPanel extends JPanel {
+public class GraphicsPanel extends JPanel implements Runnable {
 
     BufferedImage image;
     MatOfPoint[] contours;
     BufferedImage contourImage;
     RocketBaseVisionPipe pipeline = new RocketBaseVisionPipe();
+    URL url;
 
     public GraphicsPanel(int w, int h) {
         super();
@@ -33,6 +32,23 @@ public class GraphicsPanel extends JPanel {
         }
         imageToContours(image);
         repaint();
+        try{
+        url = new URL("http://169.254.101.225/axis-cgi/jpg/image.cgi");
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+        new Thread(this).start();
+    }
+
+    public void run() {
+        try{
+        Thread.sleep(1000/15);
+        image = ImageIO.read(url);
+        imageToContours(image);
+        repaint();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void imageToContours(BufferedImage image) {
