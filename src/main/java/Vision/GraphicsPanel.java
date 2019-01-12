@@ -60,6 +60,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         BufferedImage contour = new BufferedImage(320, 240, BufferedImage.TYPE_4BYTE_ABGR);
         //for (Object m : contours) {
+            if(contours.length == 0)
+                return;
             Object m = contours[0];
             Point[] points = ((MatOfPoint) m).toArray();
             for (Point p : points) {
