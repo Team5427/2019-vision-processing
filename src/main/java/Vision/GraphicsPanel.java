@@ -18,7 +18,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     BufferedImage image;
     MatOfPoint[] contours;
     BufferedImage contourImage;
-    RocketBaseVisionPipe pipeline = new RocketBaseVisionPipe();
+    GripPipeline pipeline = new GripPipeline();
     URL url;
 
     public GraphicsPanel(int w, int h) {
@@ -41,13 +41,15 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     public void run() {
-        try{
-        Thread.sleep(1000/15);
-        image = ImageIO.read(url);
-        imageToContours(image);
-        repaint();
-        }catch(Exception e) {
-            e.printStackTrace();
+        while(true) {
+            try{
+            Thread.sleep(1000/20);
+            image = ImageIO.read(url);
+            imageToContours(image);
+            repaint();
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
