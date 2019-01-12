@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 
 import org.opencv.core.*;
 
+import Vision.HalfTarget.TargetSide;
+
 public class GraphicsPanel extends JPanel implements Runnable {
 
     BufferedImage image;
@@ -53,32 +55,49 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
     }
 
+    public static final int LeftColor = -15340065;  //Purple
+    public static final int RightColor = -2222610;  //Cyan
+
     public void imageToContours(BufferedImage image) {
         pipeline.process(bufferedImageToMat(image));
         ArrayList<MatOfPoint> pointsList = pipeline.filterContoursOutput();
         Object[] contours = pointsList.toArray();
+        ArrayList<HalfTarget> halfTargetsInFrame = new ArrayList<>();
 
         BufferedImage contour = new BufferedImage(320, 240, BufferedImage.TYPE_4BYTE_ABGR);
-        //for (Object m : contours) {
-            if(contours.length == 0)
-                return;
-            Object m = contours[0];
-            Point[] points = ((MatOfPoint) m).toArray();
+        for (Object currentContour : contours) {
+            Point[] points = ((MatOfPoint) currentContour).toArray();
+            HalfTarget currentHalfTarget = new HalfTarget(points);
+            halfTargetsInFrame.add(currentHalfTarget);
+            //All this loop does is draw the current points to the panel. No calculations
             for (Point p : points) {
-                contour.setRGB((int) p.x, (int) p.y, -15340065);
-                //Left = -2222610, Right = -15340065
+                contour.setRGB((int) p.x, (int) p.y, (currentHalfTarget.side==TargetSide.Right)?RightColor:LeftColor);
             }
+        }
 
-            Point leftmostPoint = points[0];
-            Point rightmostPoint = points[0];
-            for (Point p : points) {
-                if(p.x<leftmostPoint.x)
-                    leftmostPoint = p;
-                else if(p.x>rightmostPoint.x)
-                    rightmostPoint = p;
+        ArrayList<HalfTarget> leftTargets = (ArrayList<HalfTarget>)halfTargetsInFrame.clone();
+        for(int x = 0;x<leftTargets.size();x++) {
+            if(leftTargets.get(x).side==TargetSide.Right) {
+                leftTargets.remove(x);
+                x--;
             }
-            
-        //}
+        }
+        ArrayList<HalfTarget> rightTargets = (ArrayList<HalfTarget>)halfTargetsInFrame.clone();
+        for(int x = 0;x<rightTargets.size();x++) {
+            if(rightTargets.get(x).side==TargetSide.Left) {
+                rightTargets.remove(x);
+                x--;
+            }
+        }
+
+        if(leftTargets.isEmpty())
+            return;
+        HalfTarget leftmostLeftTarget = leftTargets.get(0);
+        for(HalfTarget h : leftTargets) {
+            if(h.center.x<leftmostLeftTarget.center.x&&h.side==TargetSide.Left)
+                leftmostLeftTarget = h;
+        }
+
         this.contours = new MatOfPoint[contours.length];
         this.contourImage = contour;
     }
