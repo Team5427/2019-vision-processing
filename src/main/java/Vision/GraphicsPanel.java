@@ -90,7 +90,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             }
         }
 
-        if(leftTargets.isEmpty())
+        if(leftTargets.isEmpty()||rightTargets.isEmpty())
             return;
         HalfTarget leftmostLeftTarget = leftTargets.get(0);
         for(HalfTarget h : leftTargets) {
