@@ -59,13 +59,24 @@ public class GraphicsPanel extends JPanel implements Runnable {
         Object[] contours = pointsList.toArray();
 
         BufferedImage contour = new BufferedImage(320, 240, BufferedImage.TYPE_4BYTE_ABGR);
-        for (Object m : contours) {
+        //for (Object m : contours) {
+            Object m = contours[0];
             Point[] points = ((MatOfPoint) m).toArray();
             for (Point p : points) {
                 contour.setRGB((int) p.x, (int) p.y, -15340065);
                 //Left = -2222610, Right = -15340065
             }
-        }
+
+            Point leftmostPoint = points[0];
+            Point rightmostPoint = points[0];
+            for (Point p : points) {
+                if(p.x<leftmostPoint.x)
+                    leftmostPoint = p;
+                else if(p.x>rightmostPoint.x)
+                    rightmostPoint = p;
+            }
+            
+        //}
         this.contours = new MatOfPoint[contours.length];
         this.contourImage = contour;
     }
