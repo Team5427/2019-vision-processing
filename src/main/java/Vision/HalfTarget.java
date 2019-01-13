@@ -34,10 +34,10 @@ public class HalfTarget {
         center.x = (leftmostPoint.x+rightmostPoint.x)/2;
         center.y = (topmostPoint.y+bottommostPoint.y)/2;
 
-        double longerHeight = (side == TargetSide.Left)? bottommostPoint.y - rightmostPoint.y: (int)leftmostPoint.y - (int)bottommostPoint.y;
-        double longerWidth = rightmostPoint.x - leftmostPoint.y;
-        height = longerHeight / Math.cos(ANGLE);
-        width = longerWidth / Math.cos(ANGLE);
+        double adjHeight = (side == TargetSide.Left)? bottommostPoint.y - rightmostPoint.y: leftmostPoint.y - bottommostPoint.y;
+        double adjWidth = (side == TargetSide.Left)? bottommostPoint.x - leftmostPoint.x : rightmostPoint.x - bottommostPoint.x;
+        height = adjHeight / Math.cos(ANGLE);
+        width = adjWidth / Math.cos(ANGLE);
         
         if(side==TargetSide.Left) {
             topRight = rightmostPoint;
