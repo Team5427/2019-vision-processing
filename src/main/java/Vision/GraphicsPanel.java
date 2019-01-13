@@ -56,13 +56,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     public static final int LeftColor = -15340065;  //Purple
-    public static final int RightColor = -2222610;  //Cyan
+    public static final int RightColor = -15418960; //Cyan
 
     public void imageToContours(BufferedImage image) {
         pipeline.process(bufferedImageToMat(image));
         ArrayList<MatOfPoint> pointsList = pipeline.filterContoursOutput();
         Object[] contours = pointsList.toArray();
         ArrayList<HalfTarget> halfTargetsInFrame = new ArrayList<>();
+        ArrayList<Target> targetsInFrame = new ArrayList<>();
 
         BufferedImage contour = new BufferedImage(320, 240, BufferedImage.TYPE_4BYTE_ABGR);
         for (Object currentContour : contours) {
@@ -90,14 +91,27 @@ public class GraphicsPanel extends JPanel implements Runnable {
             }
         }
 
-        if(leftTargets.isEmpty()||rightTargets.isEmpty())
-            return;
-        HalfTarget leftmostLeftTarget = leftTargets.get(0);
-        for(HalfTarget h : leftTargets) {
-            if(h.center.x<leftmostLeftTarget.center.x&&h.side==TargetSide.Left)
-                leftmostLeftTarget = h;
+        while(!(leftTargets.isEmpty()||rightTargets.isEmpty())) {
+            HalfTarget leftmostLeftTarget = leftTargets.get(0);
+            for(HalfTarget h : leftTargets) {
+                if(h.center.x<leftmostLeftTarget.center.x&&h.side==TargetSide.Left)
+                    leftmostLeftTarget = h;
+            }
+            HalfTarget leftmostRightTarget = rightTargets.get(0);
+            while(leftmostRightTarget.center.x<leftmostLeftTarget.center.x) {
+                rightTargets.remove(leftmostRightTarget);
+                if(rightTargets.isEmpty())
+                    return;
+                leftmostRightTarget = rightTargets.get(0);
+            }
+            for(HalfTarget h : rightTargets) {
+                if(h.center.x<leftmostRightTarget.center.x)
+                    leftmostRightTarget = h;
+            }
+            targetsInFrame.add(new Target(leftmostLeftTarget, leftmostRightTarget));
+            leftTargets.remove(leftmostLeftTarget);
+            rightTargets.remove(leftmostRightTarget);
         }
-
         this.contours = new MatOfPoint[contours.length];
         this.contourImage = contour;
     }
