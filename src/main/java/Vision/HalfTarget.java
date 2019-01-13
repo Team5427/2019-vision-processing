@@ -12,6 +12,8 @@ public class HalfTarget {
     public double height;
     public double width;
 
+    public Point topRight, topLeft, bottomRight, bottomLeft;
+
     public HalfTarget(Point[] points) {
         this.points = points;
         Point leftmostPoint = points[0];
@@ -32,10 +34,21 @@ public class HalfTarget {
         center.x = (leftmostPoint.x+rightmostPoint.x)/2;
         center.y = (topmostPoint.y+bottommostPoint.y)/2;
 
-        double adjHeight = (side == TargetSide.Left)? bottommostPoint.y - rightmostPoint.y: leftmostPoint.y - bottommostPoint.y;
+        double adjHeight = (side == TargetSide.Left)? bottommostPoint.y - rightmostPoint.y : leftmostPoint.y - bottommostPoint.y;
         double adjWidth = (side == TargetSide.Left)? bottommostPoint.x - leftmostPoint.x : rightmostPoint.x - bottommostPoint.x;
         height = adjHeight / Math.cos(ANGLE);
         width = adjWidth / Math.cos(ANGLE);
         
+        if(side==TargetSide.Left) {
+            topRight = rightmostPoint;
+            topLeft = topmostPoint;
+            bottomLeft = leftmostPoint;
+            bottomRight = bottommostPoint;
+        } else if(side==TargetSide.Right) {
+            topRight = topmostPoint;
+            topLeft = leftmostPoint;
+            bottomLeft = bottommostPoint;
+            bottomRight = rightmostPoint;
+        }
     }
 }
