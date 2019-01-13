@@ -12,6 +12,8 @@ public class HalfTarget {
     public double height;
     public double width;
 
+    public Point topRight, topLeft, bottomRight, bottomLeft;
+
     public HalfTarget(Point[] points) {
         this.points = points;
         Point leftmostPoint = points[0];
@@ -37,5 +39,16 @@ public class HalfTarget {
         height = longerHeight / Math.cos(ANGLE);
         width = longerWidth / Math.cos(ANGLE);
         
+        if(side==TargetSide.Left) {
+            topRight = rightmostPoint;
+            topLeft = topmostPoint;
+            bottomLeft = leftmostPoint;
+            bottomRight = bottommostPoint;
+        } else {
+            topRight = topmostPoint;
+            topLeft = leftmostPoint;
+            bottomLeft = bottommostPoint;
+            bottomRight = rightmostPoint;
+        }
     }
 }
