@@ -142,6 +142,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             {
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
             }
+            System.out.println(t.distanceFromRobot());
         }
     }
 

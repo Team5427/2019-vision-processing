@@ -12,6 +12,10 @@ public class Target {
     HalfTarget largerTarget, smallerTarget;
     double differenceRatio;
 
+
+    public static final double FOCAL_WIDTH = 272.1875;
+    public static final double TARGET_SEPERATION = 8;//inches
+
     public Target(HalfTarget l, HalfTarget r) {
         left = l;
         right = r;
@@ -37,4 +41,15 @@ public class Target {
             
     }
 
+
+    public double distanceFromRobot()
+    {
+        double dist;
+
+        double pixDist = right.topLeft.x - left.topRight.x;
+
+        dist = FOCAL_WIDTH*TARGET_SEPERATION/pixDist;
+
+        return dist;
+    }
 }
