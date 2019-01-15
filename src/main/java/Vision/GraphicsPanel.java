@@ -35,7 +35,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         imageToContours(image);
         repaint();
         try{
-        url = new URL("http://169.254.101.225/axis-cgi/jpg/image.cgi");
+        url = new URL("http://169.254.101.224/axis-cgi/jpg/image.cgi");
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -55,26 +55,27 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
     }
 
-    public static final int LeftColor = -15340065;  //Purple
-    public static final int RightColor = -15418960; //Cyan
+    public static final int LEFT_COLOR = -15340065;  //Purple
+    public static final int RIGHT_COLOR = -15418960; //Cyan
+    
+    public static ArrayList<Target> targetsInFrame;
 
     public void imageToContours(BufferedImage image) {
         pipeline.process(bufferedImageToMat(image));
         ArrayList<MatOfPoint> pointsList = pipeline.filterContoursOutput();
         Object[] contours = pointsList.toArray();
         ArrayList<HalfTarget> halfTargetsInFrame = new ArrayList<>();
-        ArrayList<Target> targetsInFrame = new ArrayList<>();
-
+        targetsInFrame = new ArrayList<>();
         BufferedImage contour = new BufferedImage(320, 240, BufferedImage.TYPE_4BYTE_ABGR);
         for (Object currentContour : contours) {
             Point[] points = ((MatOfPoint) currentContour).toArray();
             HalfTarget currentHalfTarget = new HalfTarget(points);
-            if(currentHalfTarget.height<(currentHalfTarget.width*2))
+            if(currentHalfTarget.height<(currentHalfTarget.width*1.5))
                 break;
             halfTargetsInFrame.add(currentHalfTarget);
             //All this loop does is draw the current points to the panel. No calculations
             for (Point p : points) {
-                contour.setRGB((int) p.x, (int) p.y, (currentHalfTarget.side==TargetSide.Right)?RightColor:LeftColor);
+                contour.setRGB((int) p.x, (int) p.y, (currentHalfTarget.side==TargetSide.Right)?RIGHT_COLOR:LEFT_COLOR);
             }
         }
 
@@ -92,7 +93,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 x--;
             }
         }
-
+        
         while(!(leftTargets.isEmpty()||rightTargets.isEmpty())) {
             HalfTarget leftmostLeftTarget = leftTargets.get(0);
             for(HalfTarget h : leftTargets) {
@@ -110,6 +111,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if(h.center.x<leftmostRightTarget.center.x)
                     leftmostRightTarget = h;
             }
+            
             targetsInFrame.add(new Target(leftmostLeftTarget, leftmostRightTarget));
             leftTargets.remove(leftmostLeftTarget);
             rightTargets.remove(leftmostRightTarget);
@@ -125,7 +127,22 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.setColor(Color.RED);
         g.drawLine(0, 120, 320, 120);
         g.drawLine(160, 0, 160, 240);
-        g.drawImage(contourImage, 0, 0, null);
+        // g.drawImage(contourImage, 0, 0, null);
+        for(Target t:targetsInFrame)
+        {
+            HalfTarget left = t.left;
+            HalfTarget right = t.right;
+            g.setColor(new Color(this.LEFT_COLOR));
+            for(Point p : left.points)
+            {
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+            }
+            g.setColor(new Color(this.RIGHT_COLOR));
+            for(Point p : right.points)
+            {
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+            }
+        }
     }
 
     @Override

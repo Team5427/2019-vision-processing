@@ -25,19 +25,19 @@ public class HalfTarget {
                 leftmostPoint = p;
             else if(p.x>rightmostPoint.x)
                 rightmostPoint = p;
-            if(p.y>topmostPoint.y)
+            if(p.y<topmostPoint.y)
                 topmostPoint = p;
-            else if(p.y<bottommostPoint.y)
+            else if(p.y>bottommostPoint.y)
                 bottommostPoint = p;
         }
-        side = (leftmostPoint.y>rightmostPoint.y)?TargetSide.Right:TargetSide.Left;
+        side = (leftmostPoint.y<rightmostPoint.y)?TargetSide.Right:TargetSide.Left;
         center.x = (leftmostPoint.x+rightmostPoint.x)/2;
         center.y = (topmostPoint.y+bottommostPoint.y)/2;
 
         double adjHeight = (side == TargetSide.Left)? bottommostPoint.y - rightmostPoint.y : leftmostPoint.y - bottommostPoint.y;
         double adjWidth = (side == TargetSide.Left)? bottommostPoint.x - leftmostPoint.x : rightmostPoint.x - bottommostPoint.x;
-        height = adjHeight / Math.cos(ANGLE);
-        width = adjWidth / Math.cos(ANGLE);
+        height = Math.abs(adjHeight / Math.cos(Math.toRadians(ANGLE)));
+        width = Math.abs(adjWidth / Math.cos(Math.toRadians(ANGLE)));
         
         if(side==TargetSide.Left) {
             topRight = rightmostPoint;
