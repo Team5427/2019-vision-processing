@@ -17,7 +17,7 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-#*.dll
+*.dll
 
 # Fortran module files
 *.mod
@@ -48,7 +48,7 @@
 .mtj.tmp/
 
 # Package Files #
-#*.jar
+*.jar
 *.war
 *.nar
 *.ear
@@ -135,8 +135,8 @@ $RECYCLE.BIN/
 *.lnk
 
 ### Gradle ###
-#.gradle
-#/build/
+.gradle
+/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -148,13 +148,13 @@ gradle-app.setting
 .gradletasknamecache
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
-# gradle/wrapper/gradle-wrapper.properties
+gradle/wrapper/gradle-wrapper.properties
 
 # # VS Code Specific Java Settings
-#.classpath
-#.project
-#.settings/
-#bin/
+.classpath
+.project
+.settings/
+bin/
 
 
 # End of https://www.gitignore.io/api/c++,java,linux,macos,gradle,windows,visualstudiocode
