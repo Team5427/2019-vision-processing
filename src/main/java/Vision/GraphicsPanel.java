@@ -120,8 +120,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     leftmostRightTarget = h;
             }
             
-
-
+            
             targetsInFrame.add(new Target(leftmostLeftTarget, leftmostRightTarget));
             leftTargets.remove(leftmostLeftTarget);
             rightTargets.remove(leftmostRightTarget);

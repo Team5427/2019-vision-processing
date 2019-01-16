@@ -53,6 +53,12 @@ public class Target {
         
         dist = FOCAL_WIDTH*TARGET_SEPERATION/pixDist;
 
+        System.out.println("Left - ");
+        System.out.println("\tWidth: "+left.width+ " Height: "+left.height);
+        System.out.println("Right - ");
+        System.out.println("\tWidth: "+right.width+ " Height: "+right.height);
+        System.out.println("Distance between: " +pixDist);
+
         return dist;
     }
 }
