@@ -70,8 +70,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
         for (Object currentContour : contours) {
             Point[] points = ((MatOfPoint) currentContour).toArray();
             HalfTarget currentHalfTarget = new HalfTarget(points);
-            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*2.5))
+            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*4))
+            {
+                System.out.println("Width:"+currentHalfTarget.width+"\tHeight:"+currentHalfTarget.height);
                 break;
+
+            }
+            
+            
             halfTargetsInFrame.add(currentHalfTarget);
             //All this loop does is draw the current points to the panel. No calculations
             for (Point p : points) {
@@ -134,11 +140,32 @@ public class GraphicsPanel extends JPanel implements Runnable {
             HalfTarget right = t.right;
             for(Point p : left.points)
             {
+                g.setColor(new Color(GraphicsPanel.LEFT_COLOR));
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+                g.setColor(Color.BLACK);
+                if(left.topLeft.x == p.x && left.topLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(left.topRight.x == p.x && left.topRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(left.bottomLeft.x == p.x && left.bottomLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(left.bottomRight.x == p.x && left.bottomRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                
             }
             for(Point p : right.points)
             {
+            g.setColor(new Color(GraphicsPanel.RIGHT_COLOR));
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+                g.setColor(Color.BLACK);
+                if(right.topLeft.x == p.x && right.topLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(right.topRight.x == p.x && right.topRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(right.bottomLeft.x == p.x && right.bottomLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(right.bottomRight.x == p.x && right.bottomRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
             }
             System.out.println(t.distanceFromRobot());
         }

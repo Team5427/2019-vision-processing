@@ -49,7 +49,7 @@ public class Target {
         double pixDist = right.topLeft.x - left.topRight.x;
 
         dist = FOCAL_WIDTH*TARGET_SEPERATION/pixDist;
-        
+
         return dist;
     }
 }
