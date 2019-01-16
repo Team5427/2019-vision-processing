@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 
 import Vision.HalfTarget.TargetSide;
 

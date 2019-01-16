@@ -41,14 +41,16 @@ public class Target {
             
     }
 
+    public double getTapeDist()
+    {
+        return right.topLeft.x - left.topRight.x;
+    }
 
     public double distanceFromRobot()
     {
         double dist;
 
-        double pixDist = right.topLeft.x - left.topRight.x;
-
-        dist = FOCAL_WIDTH*TARGET_SEPERATION/pixDist;
+        dist = FOCAL_WIDTH*TARGET_SEPERATION/getTapeDist();
 
         return dist;
     }
