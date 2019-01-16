@@ -70,7 +70,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         for (Object currentContour : contours) {
             Point[] points = ((MatOfPoint) currentContour).toArray();
             HalfTarget currentHalfTarget = new HalfTarget(points);
-            if(currentHalfTarget.height<(currentHalfTarget.width*2))
+            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*2.5))
                 break;
             halfTargetsInFrame.add(currentHalfTarget);
             //All this loop does is draw the current points to the panel. No calculations
