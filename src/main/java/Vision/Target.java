@@ -46,8 +46,11 @@ public class Target {
     {
         double dist;
 
-        double pixDist = right.topLeft.x - left.topRight.x;
-
+        //right.topLeft.x - left.topRight.x
+        double diffX = right.topLeft.x - left.topLeft.x;
+        double diffY = right.topLeft.y - left.topLeft.y;
+        double pixDist = (right.topLeft.y != left.topLeft.y)? Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2)) : diffX;
+        
         dist = FOCAL_WIDTH*TARGET_SEPERATION/pixDist;
 
         return dist;

@@ -72,7 +72,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             HalfTarget currentHalfTarget = new HalfTarget(points);
             if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*4))
             {
-                System.out.println("Width:"+currentHalfTarget.width+"\tHeight:"+currentHalfTarget.height);
+                //System.out.println("Width:"+currentHalfTarget.width+"\tHeight:"+currentHalfTarget.height);
                 break;
 
             }
@@ -101,6 +101,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
         
         while(!(leftTargets.isEmpty()||rightTargets.isEmpty())) {
+            
+            
             HalfTarget leftmostLeftTarget = leftTargets.get(0);
             for(HalfTarget h : leftTargets) {
                 if(h.center.x<leftmostLeftTarget.center.x&&h.side==TargetSide.Left)
@@ -118,6 +120,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     leftmostRightTarget = h;
             }
             
+
+
             targetsInFrame.add(new Target(leftmostLeftTarget, leftmostRightTarget));
             leftTargets.remove(leftmostLeftTarget);
             rightTargets.remove(leftmostRightTarget);
