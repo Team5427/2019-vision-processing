@@ -35,7 +35,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         imageToContours(image);
         repaint();
         try{
-        url = new URL("http://169.254.101.224/axis-cgi/jpg/image.cgi");
+        url = new URL("http://169.254.101.225/axis-cgi/jpg/image.cgi");
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -70,7 +70,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         for (Object currentContour : contours) {
             Point[] points = ((MatOfPoint) currentContour).toArray();
             HalfTarget currentHalfTarget = new HalfTarget(points);
-            if(currentHalfTarget.height<(currentHalfTarget.width*1.5))
+            if(currentHalfTarget.height<(currentHalfTarget.width*2))
                 break;
             halfTargetsInFrame.add(currentHalfTarget);
             //All this loop does is draw the current points to the panel. No calculations
@@ -116,8 +116,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
             leftTargets.remove(leftmostLeftTarget);
             rightTargets.remove(leftmostRightTarget);
         }
-        this.contours = new MatOfPoint[contours.length];
-        this.contourImage = contour;
+        // this.contours = new MatOfPoint[contours.length];
+        // this.contourImage = contour;
     }
 
     @Override
@@ -132,12 +132,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
         {
             HalfTarget left = t.left;
             HalfTarget right = t.right;
-            g.setColor(new Color(this.LEFT_COLOR));
             for(Point p : left.points)
             {
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
             }
-            g.setColor(new Color(this.RIGHT_COLOR));
             for(Point p : right.points)
             {
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
