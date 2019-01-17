@@ -41,6 +41,15 @@ public class Target {
             
     }
 
+    public double getAvgWidth()
+    {
+        return (left.width+right.width)/2;
+    }
+
+    public double getAvgHeight()
+    {
+        return (left.height+right.height)/2;
+    }
 
     public double distanceFromRobot()
     {
@@ -54,9 +63,9 @@ public class Target {
         dist = FOCAL_WIDTH*TARGET_SEPERATION/pixDist;
 
         System.out.println("Left - ");
-        System.out.println("\tWidth: "+left.width+ " Height: "+left.height);
+        System.out.println("Width: "+left.width+ " Height: "+left.height);
         System.out.println("Right - ");
-        System.out.println("\tWidth: "+right.width+ " Height: "+right.height);
+        System.out.println("Width: "+right.width+ " Height: "+right.height);
         System.out.println("Distance between: " +pixDist);
 
         return dist;

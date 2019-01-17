@@ -22,6 +22,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
     BufferedImage contourImage;
     GripPipeline pipeline = new GripPipeline();
     URL url;
+    
+    public static final double WIDTH_PIX_RATIO = 0.17; //The ratio of the average half target width to the pixel distance between the two half targets
+    public static final double HEIGHT_PIX_RATIO = 0.52; //The ratio of the average half target height to the pixel distance between the two half targets
+    public static final double RATIO_TOLERANCE = 0.05;
 
     public GraphicsPanel(int w, int h) {
         super();
@@ -35,7 +39,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         imageToContours(image);
         repaint();
         try{
-        url = new URL("http://169.254.101.225/axis-cgi/jpg/image.cgi");
+        url = new URL("http://169.254.101.224/axis-cgi/jpg/image.cgi");
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -129,6 +133,15 @@ public class GraphicsPanel extends JPanel implements Runnable {
         // this.contourImage = contour;
     }
 
+
+    public boolean isValidTarget(Target t)
+    {
+        
+
+        return true;
+    }
+
+
     @Override
     public void paint(Graphics g) {
         g.setColor(Color.WHITE);
@@ -170,7 +183,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if(right.bottomRight.x == p.x && right.bottomRight.y == p.y)
                     g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
             }
-            System.out.println(t.distanceFromRobot());
+            System.out.println("Distance from Robot: "+t.distanceFromRobot());
         }
     }
 
