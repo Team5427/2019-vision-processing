@@ -125,8 +125,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     leftmostRightTarget = h;
             }
             
-            
-            targetsInFrame.add(new Target(leftmostLeftTarget, leftmostRightTarget));
+            Target t = new Target(leftmostLeftTarget, leftmostRightTarget);
+            if(isValidTarget(t))
+                targetsInFrame.add(t);
             leftTargets.remove(leftmostLeftTarget);
             rightTargets.remove(leftmostRightTarget);
         }
@@ -137,7 +138,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     public boolean isValidTarget(Target t)
     {
-        
+        if(Math.abs(t.getAvgWidth()/t.getTapeDist()-this.WIDTH_PIX_RATIO)>this.RATIO_TOLERANCE)
+            return false;
+        if(Math.abs(t.getAvgHeight()/t.getTapeDist()-this.HEIGHT_PIX_RATIO)>this.RATIO_TOLERANCE)
+            return false;
 
         return true;
     }
