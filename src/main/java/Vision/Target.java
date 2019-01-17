@@ -51,22 +51,26 @@ public class Target {
         return (left.height+right.height)/2;
     }
 
-    public double distanceFromRobot()
+    public double getTapeDist()
     {
-        double dist;
-
         //right.topLeft.x - left.topRight.x
         double diffX = right.topLeft.x - left.topLeft.x;
         double diffY = right.topLeft.y - left.topLeft.y;
         double pixDist = (right.topLeft.y != left.topLeft.y)? Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2)) : diffX;
-        
-        dist = FOCAL_WIDTH*TARGET_SEPERATION/pixDist;
+        return pixDist;
+    }
+
+    public double distanceFromRobot()
+    {
+        double dist;
+
+        dist = FOCAL_WIDTH*TARGET_SEPERATION/getTapeDist();
 
         System.out.println("Left - ");
         System.out.println("Width: "+left.width+ " Height: "+left.height);
         System.out.println("Right - ");
         System.out.println("Width: "+right.width+ " Height: "+right.height);
-        System.out.println("Distance between: " +pixDist);
+        System.out.println("Distance between: " +getTapeDist());
 
         return dist;
     }
