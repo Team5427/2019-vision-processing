@@ -135,7 +135,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             {
                 targetsInFrame.add(t);
                 System.out.println(t.distanceFromRobot());
-                // System.out.println("\t\t" +t.getTapeDist());
+                System.out.println("\t\t" +t.getTapeDist());
                 leftTargets.remove(leftmostLeftTarget);
                 rightTargets.remove(leftmostRightTarget);
             }
