@@ -26,7 +26,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     
     public static final double WIDTH_PIX_RATIO = 0.17; //The ratio of the average half target width to the pixel distance between the two half targets
     public static final double HEIGHT_PIX_RATIO = 0.52; //The ratio of the average half target height to the pixel distance between the two half targets
-    public static final double RATIO_TOLERANCE = 0.05;
+    public static final double DISTANCE_TOLERANCE = 25;
 
     public GraphicsPanel(int w, int h) {
         super();
@@ -75,9 +75,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
         for (Object currentContour : contours) {
             Point[] points = ((MatOfPoint) currentContour).toArray();
             HalfTarget currentHalfTarget = new HalfTarget(points);
-            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*4))
+            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*5))
             {
-                //System.out.println("Width:"+currentHalfTarget.width+"\tHeight:"+currentHalfTarget.height);
+                // System.out.println(currentHalfTarget.height/currentHalfTarget.width);
+                // System.out.println("Invalid Halftarget!!!");
                 break;
 
             }
@@ -126,24 +127,34 @@ public class GraphicsPanel extends JPanel implements Runnable {
             }
             
             Target t = new Target(leftmostLeftTarget, leftmostRightTarget);
-            if(isValidTarget(t))
+            if(isValidTarget(t)>0)
+                leftTargets.remove(leftmostLeftTarget);
+            else if(isValidTarget(t)<0)
+                rightTargets.remove(leftmostRightTarget);
+            else
+            {
                 targetsInFrame.add(t);
-            leftTargets.remove(leftmostLeftTarget);
-            rightTargets.remove(leftmostRightTarget);
+                System.out.println(t.distanceFromRobot());
+                // System.out.println("\t\t" +t.getTapeDist());
+                leftTargets.remove(leftmostLeftTarget);
+                rightTargets.remove(leftmostRightTarget);
+            }
         }
         // this.contours = new MatOfPoint[contours.length];
         // this.contourImage = contour;
     }
 
-
-    public boolean isValidTarget(Target t)
+    //returns -1 if too close, 1 if too far, 0 if valid target
+    public int isValidTarget(Target t)
     {
-        if(Math.abs(t.getAvgWidth()/t.getTapeDist()-this.WIDTH_PIX_RATIO)>this.RATIO_TOLERANCE)
-            return false;
-        if(Math.abs(t.getAvgHeight()/t.getTapeDist()-this.HEIGHT_PIX_RATIO)>this.RATIO_TOLERANCE)
-            return false;
 
-        return true;
+        double idealTapeDist = ((t.getAvgHeight()/this.HEIGHT_PIX_RATIO)+(t.getAvgWidth()/this.WIDTH_PIX_RATIO))/2;
+        if(Math.abs(idealTapeDist-t.getTapeDist())>this.DISTANCE_TOLERANCE)
+            return 1;
+        else if(Math.abs(idealTapeDist-t.getTapeDist())>this.DISTANCE_TOLERANCE)
+            return -1;
+        else
+            return 0;
     }
 
 
@@ -188,7 +199,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if(right.bottomRight.x == p.x && right.bottomRight.y == p.y)
                     g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
             }
-            System.out.println("Distance from Robot: "+t.distanceFromRobot());
+            // System.out.println("DifferenceRatio: "+t.differenceRatio);
         }
     }
 

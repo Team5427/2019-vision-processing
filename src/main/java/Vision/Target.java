@@ -16,6 +16,9 @@ public class Target {
     public static final double FOCAL_WIDTH = 284.75;
     public static final double TARGET_SEPERATION = 8;//inches
 
+    public static final double DISTANCE_CONSTANT = 2686.76;//product of tape distance and actual distance
+
+
     public Target(HalfTarget l, HalfTarget r) {
         left = l;
         right = r;
@@ -62,15 +65,14 @@ public class Target {
 
     public double distanceFromRobot()
     {
-        double dist;
+        double dist = DISTANCE_CONSTANT/getTapeDist();
+        // dist = FOCAL_WIDTH*TARGET_SEPERATION/getTapeDist();
 
-        dist = FOCAL_WIDTH*TARGET_SEPERATION/getTapeDist();
-
-        System.out.println("Left - ");
-        System.out.println("Width: "+left.width+ " Height: "+left.height);
-        System.out.println("Right - ");
-        System.out.println("Width: "+right.width+ " Height: "+right.height);
-        System.out.println("Distance between: " +getTapeDist());
+        // System.out.println("Left - ");
+        // System.out.println("Width: "+left.width+ " Height: "+left.height);
+        // System.out.println("Right - ");
+        // System.out.println("Width: "+right.width+ " Height: "+right.height);
+        // System.out.println("Distance between: " +getTapeDist());
 
         return dist;
     }
