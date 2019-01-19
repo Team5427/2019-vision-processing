@@ -134,14 +134,20 @@ public class GraphicsPanel extends JPanel implements Runnable {
             else
             {
                 targetsInFrame.add(t);
-                System.out.println(t.distanceFromRobot());
-                System.out.println("\t\t" +t.getTapeDist());
+                System.out.println("\t\t" + targetOffset(t));
                 leftTargets.remove(leftmostLeftTarget);
                 rightTargets.remove(leftmostRightTarget);
             }
         }
         // this.contours = new MatOfPoint[contours.length];
         // this.contourImage = contour;
+    }
+
+    public double targetOffset(Target t)
+    {
+        double offset = t.center.x - 160; //in pixels;
+
+        return offset;
     }
 
     //returns -1 if too close, 1 if too far, 0 if valid target
