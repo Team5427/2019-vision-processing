@@ -23,7 +23,11 @@ public class GraphicsPanel extends JPanel implements Runnable {
     BufferedImage contourImage;
     GripPipeline pipeline = new GripPipeline();
     URL url;
-    
+    public static double focalLen; 
+    public static double imageCenterX;
+    public static double imageCenterY;
+
+    public static final double FOV = 67f;
     public static final double WIDTH_PIX_RATIO = 0.17; //The ratio of the average half target width to the pixel distance between the two half targets
     public static final double HEIGHT_PIX_RATIO = 0.52; //The ratio of the average half target height to the pixel distance between the two half targets
     public static final double DISTANCE_TOLERANCE = 25;
@@ -31,14 +35,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public GraphicsPanel(int w, int h) {
         super();
         setSize(w, h);
-        try {
-            this.image = ImageIO.read(new File("Images/VisionImages2019/RocketPanelStraightDark24in.jpg"));
+        // try {
+        //     this.image = ImageIO.read(new File("Images/VisionImages2019/RocketPanelStraightDark24in.jpg"));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        imageToContours(image);
-        repaint();
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
+        // imageToContours(image);
+        // repaint();
         try{
         url = new URL("http://169.254.101.224/axis-cgi/jpg/image.cgi");
         }catch(Exception e) {
@@ -53,6 +57,11 @@ public class GraphicsPanel extends JPanel implements Runnable {
             Thread.sleep(1000/20);
             image = ImageIO.read(url);
             imageToContours(image);
+
+            focalLen = image.getWidth()/(2*Math.tan(Math.toRadians(this.FOV/2)));
+            imageCenterX = image.getWidth()/2 - 0.5;
+            imageCenterY = image.getHeight()/2 - 0.5;
+
             repaint();
             }catch(Exception e) {
                 e.printStackTrace();
@@ -138,6 +147,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 leftTargets.remove(leftmostLeftTarget);
                 rightTargets.remove(leftmostRightTarget);
             }
+
+            System.out.println("******* z: "+t.solveForZ()+"*************************");
         }
         // this.contours = new MatOfPoint[contours.length];
         // this.contourImage = contour;

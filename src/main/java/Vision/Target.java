@@ -24,23 +24,23 @@ public class Target {
         right = r;
         center.x = (left.center.x+right.center.x)/2;
         center.y = (left.center.y+left.center.y)/2;
-        if(left.height > right.height)
-        {
-            largerTarget = left;
-            smallerTarget = right;
-        }
-        else if(left.height < right.height)
-        {
-            largerTarget = right;
-            smallerTarget = left;    
-        }
-        else
-        {
-            largerTarget = smallerTarget = null;
-        }
+    //     if(left.height > right.height)
+    //     {
+    //         largerTarget = left;
+    //         smallerTarget = right;
+    //     }
+    //     else if(left.height < right.height)
+    //     {
+    //         largerTarget = right;
+    //         smallerTarget = left;    
+    //     }
+    //     else
+    //     {
+    //         largerTarget = smallerTarget = null;
+    //     }
 
 
-        differenceRatio = (largerTarget != null)? (smallerTarget.height/largerTarget.height) : 1.00;
+    //     differenceRatio = (largerTarget != null)? (smallerTarget.height/largerTarget.height) : 1.00;
             
     }
 
@@ -63,17 +63,37 @@ public class Target {
         return pixDist;
     }
 
-    public double distanceFromRobot()
-    {
-        double dist = DISTANCE_CONSTANT/getTapeDist();
-        // dist = FOCAL_WIDTH*TARGET_SEPERATION/getTapeDist();
-
-        // System.out.println("Left - ");
-        // System.out.println("Width: "+left.width+ " Height: "+left.height);
-        // System.out.println("Right - ");
-        // System.out.println("Width: "+right.width+ " Height: "+right.height);
-        // System.out.println("Distance between: " +getTapeDist());
-
-        return dist;
+    public double getXOverZ() {
+        return (center.x - GraphicsPanel.imageCenterX)/GraphicsPanel.focalLen;
     }
+    public double getYOverZ() {
+        return (center.y - GraphicsPanel.imageCenterY)/GraphicsPanel.focalLen;
+    }
+    public double getConstant3() {
+        return getYOverZ()/getXOverZ();
+    }
+    public double getConstant4() {
+        return 45; //inches, height of target
+    }
+
+    public double solveForX() {
+        return getConstant4()/getConstant3();
+    }
+    public double solveForZ() {
+        return solveForX()/getXOverZ();
+    }
+
+    // public double distanceFromRobot()
+    // {
+    //     double dist = DISTANCE_CONSTANT/getTapeDist();
+    //     // dist = FOCAL_WIDTH*TARGET_SEPERATION/getTapeDist();
+
+    //     // System.out.println("Left - ");
+    //     // System.out.println("Width: "+left.width+ " Height: "+left.height);
+    //     // System.out.println("Right - ");
+    //     // System.out.println("Width: "+right.width+ " Height: "+right.height);
+    //     // System.out.println("Distance between: " +getTapeDist());
+
+    //     return dist;
+    // }
 }
