@@ -144,6 +144,18 @@ public class GraphicsPanel extends JPanel implements Runnable {
         // this.contourImage = contour;
     }
 
+    enum DirectionToTurn{Left, Right, None}
+    public static final int tolerance = 10;
+
+    public DirectionToTurn DirectionToTurn(Target t) {
+        int centerOfScreenX = 160;
+        if(t.center.x<centerOfScreenX-tolerance)
+            return DirectionToTurn.Right;
+        else if(t.center.x>centerOfScreenX+tolerance)
+            return DirectionToTurn.Left;
+        return DirectionToTurn.None;
+    }
+
     //returns -1 if too close, 1 if too far, 0 if valid target
     public int isValidTarget(Target t)
     {
