@@ -1,8 +1,6 @@
 package Vision;
 
-import static org.junit.Assert.assertNotNull;
 
-import javax.lang.model.util.ElementScanner6;
 
 import org.opencv.core.*;
 

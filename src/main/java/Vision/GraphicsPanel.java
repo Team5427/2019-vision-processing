@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.File;
 import java.util.ArrayList;
 import java.net.URL;
 
@@ -12,12 +11,11 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.opencv.core.*;
-import org.opencv.imgproc.Imgproc;
-
 import Vision.HalfTarget.TargetSide;
 
 public class GraphicsPanel extends JPanel implements Runnable {
 
+    private static final long serialVersionUID = 1L;
     BufferedImage image;
     MatOfPoint[] contours;
     BufferedImage contourImage;
@@ -58,7 +56,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             image = ImageIO.read(url);
             imageToContours(image);
 
-            focalLen = image.getWidth()/(2*Math.tan(Math.toRadians(this.FOV/2)));
+            focalLen = image.getWidth()/(2*Math.tan(Math.toRadians(FOV/2)));
             imageCenterX = image.getWidth()/2 - 0.5;
             imageCenterY = image.getHeight()/2 - 0.5;
 
@@ -99,15 +97,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 contour.setRGB((int) p.x, (int) p.y, (currentHalfTarget.side==TargetSide.Right)?RIGHT_COLOR:LEFT_COLOR);
             }
         }
-
-        ArrayList<HalfTarget> leftTargets = (ArrayList<HalfTarget>)halfTargetsInFrame.clone();
+        ArrayList<HalfTarget> leftTargets = (ArrayList<HalfTarget>) halfTargetsInFrame.clone();
         for(int x = 0;x<leftTargets.size();x++) {
             if(leftTargets.get(x).side==TargetSide.Right) {
                 leftTargets.remove(x);
                 x--;
             }
         }
-        ArrayList<HalfTarget> rightTargets = (ArrayList<HalfTarget>)halfTargetsInFrame.clone();
+        ArrayList<HalfTarget> rightTargets = (ArrayList<HalfTarget>) halfTargetsInFrame.clone();
         for(int x = 0;x<rightTargets.size();x++) {
             if(rightTargets.get(x).side==TargetSide.Left) {
                 rightTargets.remove(x);
@@ -176,10 +173,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public int isValidTarget(Target t)
     {
 
-        double idealTapeDist = ((t.getAvgHeight()/this.HEIGHT_PIX_RATIO)+(t.getAvgWidth()/this.WIDTH_PIX_RATIO))/2;
-        if(Math.abs(idealTapeDist-t.getTapeDist())>this.DISTANCE_TOLERANCE)
+        double idealTapeDist = ((t.getAvgHeight()/HEIGHT_PIX_RATIO)+(t.getAvgWidth()/WIDTH_PIX_RATIO))/2;
+        if(Math.abs(idealTapeDist-t.getTapeDist())>DISTANCE_TOLERANCE)
             return 1;
-        else if(Math.abs(idealTapeDist-t.getTapeDist())>this.DISTANCE_TOLERANCE)
+        else if(Math.abs(idealTapeDist-t.getTapeDist())>DISTANCE_TOLERANCE)
             return -1;
         else
             return 0;
