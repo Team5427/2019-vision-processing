@@ -135,7 +135,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     leftmostRightTarget = h;
             }
             
-            Target t = new Target(leftmostLeftTarget, leftmostRightTarget);
+            Target t = new Target(leftmostLeftTarget, leftmostRightTarget, true);
             if(isValidTarget(t)>0)
                 leftTargets.remove(leftmostLeftTarget);
             else if(isValidTarget(t)<0)
