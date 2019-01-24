@@ -11,6 +11,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.opencv.core.*;
+
+import Networking.Server;
+import Networking.client.Client;
 import Vision.HalfTarget.TargetSide;
 
 public class GraphicsPanel extends JPanel implements Runnable {
@@ -41,6 +44,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         // }
         // imageToContours(image);
         // repaint();
+        Server.start();
         try{
         url = new URL("http://169.254.101.224/axis-cgi/jpg/image.cgi");
         }catch(Exception e) {
@@ -146,6 +150,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
             }
 
             System.out.println("******* z: "+t.solveForZ()+"*************************");
+            double d = t.solveForZ();
+            double a = t.getHorAngle();
+
+            Server.send(d+" "+a);
         }
         // this.contours = new MatOfPoint[contours.length];
         // this.contourImage = contour;
