@@ -11,9 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.opencv.core.*;
-
 import Networking.Server;
-import Networking.client.Client;
 import Vision.HalfTarget.TargetSide;
 
 public class GraphicsPanel extends JPanel implements Runnable {
@@ -46,7 +44,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         // repaint();
         Server.start();
         try{
-        url = new URL("http://169.254.101.224/axis-cgi/jpg/image.cgi");
+        url = new URL("http://10.54.27.62/axis-cgi/jpg/image.cgi");
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -75,6 +73,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public static final int RIGHT_COLOR = -15418960; //Cyan
     
     public static ArrayList<Target> targetsInFrame;
+    public static ArrayList<HalfTarget> badTargets;
+    public static ArrayList<HalfTarget> allTargets;
 
     public void imageToContours(BufferedImage image) {
         pipeline.process(bufferedImageToMat(image));
@@ -82,18 +82,21 @@ public class GraphicsPanel extends JPanel implements Runnable {
         Object[] contours = pointsList.toArray();
         ArrayList<HalfTarget> halfTargetsInFrame = new ArrayList<>();
         targetsInFrame = new ArrayList<>();
-        BufferedImage contour = new BufferedImage(320, 240, BufferedImage.TYPE_4BYTE_ABGR);
+        badTargets = new ArrayList<>();
+        allTargets = new ArrayList<>();
+
+        BufferedImage contour = new BufferedImage(800, 600, BufferedImage.TYPE_4BYTE_ABGR);
         for (Object currentContour : contours) {
             Point[] points = ((MatOfPoint) currentContour).toArray();
             HalfTarget currentHalfTarget = new HalfTarget(points);
-            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*5))
+            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*4))
             {
+                badTargets.add(currentHalfTarget);
                 // System.out.println(currentHalfTarget.height/currentHalfTarget.width);
                 // System.out.println("Invalid Halftarget!!!");
-                break;
+                continue;
 
             }
-            
             
             halfTargetsInFrame.add(currentHalfTarget);
             //All this loop does is draw the current points to the panel. No calculations
@@ -101,6 +104,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 contour.setRGB((int) p.x, (int) p.y, (currentHalfTarget.side==TargetSide.Right)?RIGHT_COLOR:LEFT_COLOR);
             }
         }
+        
         ArrayList<HalfTarget> leftTargets = (ArrayList<HalfTarget>) halfTargetsInFrame.clone();
         for(int x = 0;x<leftTargets.size();x++) {
             if(leftTargets.get(x).side==TargetSide.Right) {
@@ -124,8 +128,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if(h.center.x<leftmostLeftTarget.center.x&&h.side==TargetSide.Left)
                     leftmostLeftTarget = h;
             }
+
             HalfTarget leftmostRightTarget = rightTargets.get(0);
             while(leftmostRightTarget.center.x<leftmostLeftTarget.center.x) {
+                allTargets.add(leftmostRightTarget);
                 rightTargets.remove(leftmostRightTarget);
                 if(rightTargets.isEmpty())
                     return;
@@ -138,24 +144,30 @@ public class GraphicsPanel extends JPanel implements Runnable {
             
             Target t = new Target(leftmostLeftTarget, leftmostRightTarget, true);
             if(isValidTarget(t)>0)
+            {
+                allTargets.add(leftmostLeftTarget);
                 leftTargets.remove(leftmostLeftTarget);
+            }
             else if(isValidTarget(t)<0)
+            {
+                allTargets.add(leftmostRightTarget);
                 rightTargets.remove(leftmostRightTarget);
+            }
             else
             {
                 targetsInFrame.add(t);
-                // System.out.println("\t\t" + targetOffset(t));
+                //System.out.println("\t\t" + targetOffset(t));
                 leftTargets.remove(leftmostLeftTarget);
                 rightTargets.remove(leftmostRightTarget);
             }
 
-            double d = t.solveForZ();
-            double aH = t.getHorAngle();
-            double aV = t.getVertAngle();
+            double d = -t.solveForZ();
+            double aH = -t.getHorAngle();
+            double aV = -t.getVertAngle();
 
             System.out.println("******* z: "+d+"*************************");
-            System.out.println("******* aH: "+aH+"*************************");
-            System.out.println("******* aV: "+aV+"*************************\n\n");
+            System.out.println("******* aH: "+Math.toDegrees(aH)+"*************************");
+            System.out.println("******* aV: "+Math.toDegrees(aV)+"*************************\n\n");
 
             Server.send(d+" "+aH);
         }
@@ -200,8 +212,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(Color.RED);
-        g.drawLine(0, 120, 320, 120);
-        g.drawLine(160, 0, 160, 240);
+        g.drawLine(0, 300, 800, 300);
+        g.drawLine(400, 0, 400, 600);
         // g.drawImage(contourImage, 0, 0, null);
         for(Target t:targetsInFrame)
         {
@@ -237,6 +249,41 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
             }
             // System.out.println("DifferenceRatio: "+t.differenceRatio);
+        }
+
+        for(HalfTarget h:badTargets)
+        {
+            for(Point p : h.points)
+            {
+                g.setColor(Color.RED);
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+                g.setColor(Color.BLACK);
+                if(h.topLeft.x == p.x && h.topLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.topRight.x == p.x && h.topRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomLeft.x == p.x && h.bottomLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomRight.x == p.x && h.bottomRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+            }
+        }
+        for(HalfTarget h:allTargets)
+        {
+            for(Point p : h.points)
+            {
+                g.setColor(Color.ORANGE);
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+                g.setColor(Color.BLACK);
+                if(h.topLeft.x == p.x && h.topLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.topRight.x == p.x && h.topRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomLeft.x == p.x && h.bottomLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomRight.x == p.x && h.bottomRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+            }
         }
     }
 

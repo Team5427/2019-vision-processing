@@ -106,7 +106,7 @@ public class Server {
 				try {
 
 					if (connection == null || connection.isClosed()) {
-						System.out.println("Searching for a connection...");
+						// System.out.println("Searching for a connection...");
 						try {
 
 							connection = serverSocket.accept();

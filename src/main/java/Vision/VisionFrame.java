@@ -15,8 +15,8 @@ public class VisionFrame extends JFrame {
 	 * the width and height by the resize
 	 */
 
-	public static final int width = 320;
-	public static final int height = 240;
+	public static final int width = 800;
+	public static final int height = 600;
 
 	public final ImageIcon icon = getIcon();
 

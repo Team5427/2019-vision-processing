@@ -34,10 +34,23 @@ public class HalfTarget {
             center.x = (leftmostPoint.x+rightmostPoint.x)/2;
             center.y = (topmostPoint.y+bottommostPoint.y)/2;
     
-            double adjHeight = (side == TargetSide.Left)? bottommostPoint.y - rightmostPoint.y : leftmostPoint.y - bottommostPoint.y;
-            double adjWidth = (side == TargetSide.Left)? bottommostPoint.x - leftmostPoint.x : rightmostPoint.x - bottommostPoint.x;
-            height = Math.abs(adjHeight / Math.cos(Math.toRadians(ANGLE)));
-            width = Math.abs(adjWidth / Math.cos(Math.toRadians(ANGLE)));
+            if(side == TargetSide.Left)
+            {
+                height = Math.sqrt(Math.pow(bottommostPoint.y - rightmostPoint.y, 2) + Math.pow(bottommostPoint.x - rightmostPoint.x, 2));
+
+                width = Math.sqrt(Math.pow(bottommostPoint.y - leftmostPoint.y, 2) + Math.pow(bottommostPoint.x - leftmostPoint.x, 2));
+            }
+            else if(side == TargetSide.Left)
+            {
+                width = Math.sqrt(Math.pow(bottommostPoint.y - rightmostPoint.y, 2) + Math.pow(bottommostPoint.x - rightmostPoint.x, 2));
+
+                height = Math.sqrt(Math.pow(bottommostPoint.y - leftmostPoint.y, 2) + Math.pow(bottommostPoint.x - leftmostPoint.x, 2));
+            }
+
+            // double adjHeight = (side == TargetSide.Left)? bottommostPoint.y - rightmostPoint.y : leftmostPoint.y - bottommostPoint.y;
+            // double adjWidth = (side == TargetSide.Left)? bottommostPoint.x - leftmostPoint.x : rightmostPoint.x - bottommostPoint.x;
+            // height = Math.abs(adjHeight / Math.cos(Math.toRadians(ANGLE)));
+            // width = Math.abs(adjWidth / Math.cos(Math.toRadians(ANGLE)));
             
             
         if(side==TargetSide.Left) {

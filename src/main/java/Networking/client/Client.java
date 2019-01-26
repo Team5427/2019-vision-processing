@@ -14,6 +14,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
+import javax.lang.model.util.ElementScanner6;
+
 import Networking.ByteDictionary;
 import Networking.GoalData;
 
@@ -205,7 +207,7 @@ public class Client implements Runnable {
 				}
 
 				try {
-					networkThread.sleep(10);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					System.out.println("Thread has been interrupted, client thread will stop.");
 				} catch (Exception e) {

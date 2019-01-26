@@ -4,8 +4,6 @@ package Vision;
 
 import org.opencv.core.*;
 
-import Networking.Server;
-
 public class Target {
     HalfTarget left, right;
     Point center = new Point();
@@ -61,7 +59,7 @@ public class Target {
         return getYOverZ()/getXOverZ();
     }
     public double getConstant4() {
-        return 8.5; //inches, height of target - height of camera
+        return 9.4; //inches, height of target - height of camera
     }
     public double solveForX() {
         return getConstant4()/getConstant3();
@@ -76,7 +74,7 @@ public class Target {
         return a;
     }
     public double getVertAngle() {
-        double a =  Math.atan(getYOverZ())+Math.toRadians(8.47);
+        double a =  Math.atan(getYOverZ());
 
         return a;
     }

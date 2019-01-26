@@ -46,7 +46,7 @@ public class GripPipeline {
 		// Step Filter_Contours0:
 		ArrayList<MatOfPoint> filterContoursContours = findContoursOutput;
 		double filterContoursMinArea = 100.0;
-		double filterContoursMinPerimeter = 10.0;
+		double filterContoursMinPerimeter = 30.0;
 		double filterContoursMinWidth = 0;
 		double filterContoursMaxWidth = 1000.0;
 		double filterContoursMinHeight = 0;
