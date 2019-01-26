@@ -7,23 +7,25 @@ import javax.lang.model.util.ElementScanner6;
 import org.opencv.core.*;
 
 public class Target {
+
+    /**
+     * The left and right pieces of retroreflective tape
+     */
     HalfTarget left, right;
+    /**
+     * The average of both halves' centers
+     */
     Point center = new Point();
-    HalfTarget largerTarget, smallerTarget;
-    double differenceRatio;
-
-    public static final double HEIGHT_HATCH  = 39.125;
-    public static final double HEIGHT_BALL   = 31.5;
-    public static final double HEIGHT_CAMERA = 10; 
-
+    
     public boolean isHatch;
 
-
-    public static final double FOCAL_WIDTH = 284.75;
-    public static final double TARGET_SEPERATION = 8;//inches
-
-    public static final double DISTANCE_CONSTANT = 2686.76;//product of tape distance and actual distance
-
+    /**
+     * From Manual - In inches
+     */
+    public static final double HEIGHT_HATCH         = 39.125;
+    public static final double HEIGHT_BALL          = 31.5;
+    public static final double HEIGHT_CAMERA        = 10;
+    public static final double TARGET_SEPERATION    = 8;
 
     public Target(HalfTarget l, HalfTarget r, boolean isHatch) {
         left = l;

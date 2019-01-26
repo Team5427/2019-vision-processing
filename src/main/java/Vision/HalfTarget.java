@@ -3,17 +3,36 @@ package Vision;
 import org.opencv.core.*;
 
 public class HalfTarget {
+    /**
+     * Angle the tape is placed at
+     */
     public static final double ANGLE = 14.5;
-
+    /**
+     * Identifies whether the HalfTarget is the left or right half of a full target
+     */
     enum TargetSide {Left,Right}
-    Point[] points;
-    public Point center = new Point();
     public TargetSide side;
+    /**
+     * All points condisered part of the HalfTarget - From GRIP contour
+     */
+    Point[] points;
+    /**
+     * Center of HalfTarget
+     */
+    public Point center = new Point();
+    /**
+     * Long edge of tape (pixels)
+     */
     public double height;
+    /**
+     * Short edge of tape (pixels)
+     */
     public double width;
-
+    /**
+     * The four corners of the tape (pixels)
+     */
     public Point topRight, topLeft, bottomRight, bottomLeft;
-    //red = v, black = c
+
     public HalfTarget(Point[] points) {
         this.points = points;
         Point leftmostPoint = points[0];

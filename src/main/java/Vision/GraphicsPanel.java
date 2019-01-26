@@ -228,20 +228,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         // this.contourImage = contour;
     }
 
-    enum DirectionToTurn {
-        Left, Right, None
-    }
-
     public static final int tolerance = 10;
-
-    public DirectionToTurn DirectionToTurn(Target t) {
-        int centerOfScreenX = 160;
-        if (t.center.x < centerOfScreenX - tolerance)
-            return DirectionToTurn.Right;
-        else if (t.center.x > centerOfScreenX + tolerance)
-            return DirectionToTurn.Left;
-        return DirectionToTurn.None;
-    }
 
     public double targetOffset(Target t) {
         double offset = t.center.x - 160; // in pixels;
@@ -251,9 +238,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     // returns -1 if too close, 1 if too far, 0 if valid target
     public int isValidTarget(Target t) {
-
-        double idealTapeDist = ((t.getAvgHeight() / this.HEIGHT_PIX_RATIO) + (t.getAvgWidth() / this.WIDTH_PIX_RATIO))
-                / 2;
+        double idealTapeDist = ((t.getAvgHeight() / this.HEIGHT_PIX_RATIO) + (t.getAvgWidth() / this.WIDTH_PIX_RATIO))/ 2;
         if (Math.abs(idealTapeDist - t.getTapeDist()) > this.DISTANCE_TOLERANCE)
             return 1;
         else if (Math.abs(idealTapeDist - t.getTapeDist()) > this.DISTANCE_TOLERANCE)
