@@ -61,19 +61,25 @@ public class Target {
         return getYOverZ()/getXOverZ();
     }
     public double getConstant4() {
-        return 2; //inches, height of target - height of camera
+        return 8.5; //inches, height of target - height of camera
     }
     public double solveForX() {
         return getConstant4()/getConstant3();
     }
     public double solveForZ() {
-        double d =  solveForX()/getXOverZ();
-        return d;
+        //double d =  solveForX()/getXOverZ();
+        return getConstant4()/(Math.tan(getVertAngle()));
     }
     public double getHorAngle() {
-        double a =  Math.atan(solveForX());
+        double a =  Math.atan(getXOverZ());
 
         return a;
     }
+    public double getVertAngle() {
+        double a =  Math.atan(getYOverZ())+Math.toRadians(8.47);
+
+        return a;
+    }
+
 
 }

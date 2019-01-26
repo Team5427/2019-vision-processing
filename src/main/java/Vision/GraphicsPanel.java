@@ -144,16 +144,20 @@ public class GraphicsPanel extends JPanel implements Runnable {
             else
             {
                 targetsInFrame.add(t);
-                System.out.println("\t\t" + targetOffset(t));
+                // System.out.println("\t\t" + targetOffset(t));
                 leftTargets.remove(leftmostLeftTarget);
                 rightTargets.remove(leftmostRightTarget);
             }
 
-            System.out.println("******* z: "+t.solveForZ()+"*************************");
             double d = t.solveForZ();
-            double a = t.getHorAngle();
+            double aH = t.getHorAngle();
+            double aV = t.getVertAngle();
 
-            Server.send(d+" "+a);
+            System.out.println("******* z: "+d+"*************************");
+            System.out.println("******* aH: "+aH+"*************************");
+            System.out.println("******* aV: "+aV+"*************************\n\n");
+
+            Server.send(d+" "+aH);
         }
         // this.contours = new MatOfPoint[contours.length];
         // this.contourImage = contour;
