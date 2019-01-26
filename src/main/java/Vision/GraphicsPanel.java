@@ -189,15 +189,17 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
 
         // Finds the left and right half targets that combine into a single vision
-        // target, and gets rid of invalid targets
+        // target from left to right, and gets rid of invalid targets.
         while (!(leftTargets.isEmpty() || rightTargets.isEmpty())) {
 
-            // Finds the leftmost target
+            // Finds the leftmost target that is also a left target.
             HalfTarget leftmostLeftTarget = leftTargets.get(0);
             for (HalfTarget h : leftTargets) {
                 if (h.center.x < leftmostLeftTarget.center.x && h.side == TargetSide.Left)
                     leftmostLeftTarget = h;
             }
+
+            // Removes right targets that are left of the leftmost left target.
             HalfTarget leftmostRightTarget = rightTargets.get(0);
             while (leftmostRightTarget.center.x < leftmostLeftTarget.center.x) {
                 rightTargets.remove(leftmostRightTarget);
@@ -205,11 +207,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     return;
                 leftmostRightTarget = rightTargets.get(0);
             }
+
+            // Finds the leftmost target that is also a right target.
             for (HalfTarget h : rightTargets) {
                 if (h.center.x < leftmostRightTarget.center.x)
                     leftmostRightTarget = h;
             }
 
+            // Checks if the target is a valid one.
             Target t = new Target(leftmostLeftTarget, leftmostRightTarget, true);
             if (isValidTarget(t) > 0)
                 leftTargets.remove(leftmostLeftTarget);
@@ -249,7 +254,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
         return offset;
     }
 
-    // returns -1 if too close, 1 if too far, 0 if valid target
+    /**
+     * Checks if the target is valid based on the ratio between the height/width of
+     * the targets to the distance between the two half targets.
+     * 
+     * @return 1 if the the distance is too wide, -1 if the distance is too thin, 0
+     *         if it is a valid target.
+     */
     public int isValidTarget(Target t) {
 
         double idealTapeDist = ((t.getAvgHeight() / this.HEIGHT_PIX_RATIO) + (t.getAvgWidth() / this.WIDTH_PIX_RATIO))
