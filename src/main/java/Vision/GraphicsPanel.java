@@ -132,9 +132,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         targetsInFrame.clear();
         badTargets.clear();
 
-        BufferedImage contour = new BufferedImage(800, 600, BufferedImage.TYPE_4BYTE_ABGR);
         for (Object currentContour : contours) {
-
             // Stores all the points in the current contour.
             Point[] points = ((MatOfPoint) currentContour).toArray();
 
@@ -144,6 +142,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 badTargets.add(currentHalfTarget);
             } else {
                 halfTargetsInFrame.add(currentHalfTarget);
+                System.out.println(""+currentHalfTarget.side);
             }
         }
 
@@ -232,13 +231,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public int isValidTarget(Target t)
     {
 
-        double idealTapeDist = ((t.getAvgHeight()/HEIGHT_PIX_RATIO)+(t.getAvgWidth()/WIDTH_PIX_RATIO))/2;
+        /*double idealTapeDist = ((t.getAvgHeight()/HEIGHT_PIX_RATIO)+(t.getAvgWidth()/WIDTH_PIX_RATIO))/2;
         if(Math.abs(idealTapeDist-t.getTapeDist())>DISTANCE_TOLERANCE)
             return 1;
         else if(Math.abs(idealTapeDist-t.getTapeDist())>DISTANCE_TOLERANCE)
             return -1;
         else
-            return 0;
+            return 0;*/
+        return 0;
     }
 
     @Override

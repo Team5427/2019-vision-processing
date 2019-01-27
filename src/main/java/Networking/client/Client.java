@@ -22,7 +22,7 @@ import Networking.GoalData;
 public class Client implements Runnable {
 
 	public static final String DEFAULT_IP = "10.54.27.236";
-	public static final int DEFAULT_PORT = 25565;
+	public static final int DEFAULT_PORT = 2555; //25565
 	public static int MAX_BYTE_BUFFER = 256;
 
 	public static String ip;
