@@ -17,10 +17,6 @@ import Vision.HalfTarget.TargetSide;
 public class GraphicsPanel extends JPanel implements Runnable {
 
     private static final long serialVersionUID = 1L;
-    /**
-     * Stores the initial image from the axis camera.
-     */
-    BufferedImage image;
 
     /**
      * An array that contains all of the contours in the image.
@@ -35,10 +31,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
     /**
      * An array list that stores every vision target that appears on-screen.
      */
-    public static ArrayList<Target> targetsInFrame;
-    
-    public static ArrayList<HalfTarget> badTargets;
-    public static ArrayList<HalfTarget> allTargets;
+    public static ArrayList<Target> targetsInFrame = new ArrayList<>();
+    public static ArrayList<HalfTarget> badTargets = new ArrayList<>();
 
     /**
      * The filters that the image goes through to find the contours of the
@@ -89,18 +83,11 @@ public class GraphicsPanel extends JPanel implements Runnable {
      */
     public static final double DISTANCE_TOLERANCE = 25;
 
+    public static final double CameraFrameRate = 1/15;
 
     public GraphicsPanel(int w, int h) {
         super();
         setSize(w, h);
-        // try {
-        //     this.image = ImageIO.read(new File("Images/VisionImages2019/RocketPanelStraightDark24in.jpg"));
-
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
-        // imageToContours(image);
-        // repaint();
         Server.start();
         try{
         url = new URL("http://10.54.27.62/axis-cgi/jpg/image.cgi");
@@ -111,16 +98,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
     }
 
     public void run() {
+        focalLen = getWidth()/(2*Math.tan(Math.toRadians(FOV/2)));
+        imageCenterX = getWidth()/2 - 0.5;
+        imageCenterY = getHeight()/2 - 0.5;
         while(true) {
             try{
-            Thread.sleep(1000/20);
-            image = ImageIO.read(url);
-            imageToContours(image);
-
-            focalLen = image.getWidth()/(2*Math.tan(Math.toRadians(FOV/2)));
-            imageCenterX = image.getWidth()/2 - 0.5;
-            imageCenterY = image.getHeight()/2 - 0.5;
-
+            Thread.sleep((int)(1000*CameraFrameRate));
+            imageToContours(ImageIO.read(url));
             repaint();
             }catch(Exception e) {
                 e.printStackTrace();
@@ -145,9 +129,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
         ArrayList<HalfTarget> halfTargetsInFrame = new ArrayList<>();
 
         // Initializes the array list for targets.
-        targetsInFrame = new ArrayList<>();
-        badTargets = new ArrayList<>();
-        allTargets = new ArrayList<>();
+        targetsInFrame.clear();
+        badTargets.clear();
 
         BufferedImage contour = new BufferedImage(800, 600, BufferedImage.TYPE_4BYTE_ABGR);
         for (Object currentContour : contours) {
@@ -157,15 +140,11 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
             // Creates a half target based on the array of points.
             HalfTarget currentHalfTarget = new HalfTarget(points);
-            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*4))
-            {
+            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*4)) {
                 badTargets.add(currentHalfTarget);
-                // System.out.println(currentHalfTarget.height/currentHalfTarget.width);
-                // System.out.println("Invalid Halftarget!!!");
-                continue;
+            } else {
+                halfTargetsInFrame.add(currentHalfTarget);
             }
-            halfTargetsInFrame.add(currentHalfTarget);
-            // Adds the half target to the list of all half targets
         }
 
         // Splits the half targets into left and right targets.
@@ -197,7 +176,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
             HalfTarget leftmostRightTarget = rightTargets.get(0);
             while(leftmostRightTarget.center.x<leftmostLeftTarget.center.x) {
-                allTargets.add(leftmostRightTarget);
+                badTargets.add(leftmostRightTarget);
                 rightTargets.remove(leftmostRightTarget);
                 if (rightTargets.isEmpty())
                     return;
@@ -213,12 +192,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
             // Checks if the target is a valid one.
             Target t = new Target(leftmostLeftTarget, leftmostRightTarget, true);
             if(isValidTarget(t)>0) {
-                allTargets.add(leftmostLeftTarget);
+                badTargets.add(leftmostLeftTarget);
                 leftTargets.remove(leftmostLeftTarget);
+                continue;
             }
             else if(isValidTarget(t)<0) {
-                allTargets.add(leftmostRightTarget);
+                badTargets.add(leftmostRightTarget);
                 rightTargets.remove(leftmostRightTarget);
+                continue;
             }
             else {
                 targetsInFrame.add(t);
@@ -242,7 +223,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public static final int tolerance = 10;
 
     public double targetOffset(Target t) {
-        double offset = t.center.x - 160; // in pixels;
+        double offset = t.center.x - getWidth()/2; // in pixels;
 
         return offset;
     }
@@ -265,9 +246,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(Color.RED);
-        g.drawLine(0, 300, 800, 300);
-        g.drawLine(400, 0, 400, 600);
-        // g.drawImage(contourImage, 0, 0, null);
+        g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
+        g.drawLine(getWidth()/2, 0, getWidth()/2, getHeight());
         for (Target t : targetsInFrame) {
             HalfTarget left = t.left;
             HalfTarget right = t.right;
@@ -283,7 +263,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     g.fillOval((int) p.x - 2, (int) p.y - 2, 4, 4);
                 if (left.bottomRight.x == p.x && left.bottomRight.y == p.y)
                     g.fillOval((int) p.x - 2, (int) p.y - 2, 4, 4);
-
             }
             for (Point p : right.points) {
                 g.setColor(new Color(GraphicsPanel.RIGHT_COLOR));
@@ -298,7 +277,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if (right.bottomRight.x == p.x && right.bottomRight.y == p.y)
                     g.fillOval((int) p.x - 2, (int) p.y - 2, 4, 4);
             }
-            // System.out.println("DifferenceRatio: "+t.differenceRatio);
         }
 
         for(HalfTarget h:badTargets)
@@ -318,11 +296,11 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
             }
         }
-        for(HalfTarget h:allTargets)
+        /*for(HalfTarget h:allTargets)
         {
             for(Point p : h.points)
             {
-                g.setColor(Color.ORANGE);
+                g.setColor(Color.CYAN);
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
                 g.setColor(Color.BLACK);
                 if(h.topLeft.x == p.x && h.topLeft.y == p.y)
@@ -334,7 +312,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if(h.bottomRight.x == p.x && h.bottomRight.y == p.y)
                     g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
             }
-        }
+        }*/
     }
 
     @Override

@@ -1,7 +1,5 @@
 package Vision;
 
-
-
 import org.opencv.core.*;
 
 public class Target {

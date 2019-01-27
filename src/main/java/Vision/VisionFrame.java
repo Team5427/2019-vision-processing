@@ -38,6 +38,8 @@ public class VisionFrame extends JFrame {
 
 		graphicsPanel = new GraphicsPanel(fWidth, fHeight);
 
+		setAlwaysOnTop(true);
+
 		setPreferredSize(new Dimension(fWidth, fHeight));
 
 		add(graphicsPanel);

@@ -4,10 +4,6 @@ import org.opencv.core.*;
 
 public class HalfTarget {
     /**
-     * Angle the tape is placed at
-     */
-    public static final double ANGLE = 14.5;
-    /**
      * Identifies whether the HalfTarget is the left or right half of a full target
      */
     enum TargetSide {Left,Right}
