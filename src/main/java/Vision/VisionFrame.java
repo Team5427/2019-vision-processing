@@ -1,12 +1,12 @@
 package Vision;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
+
 import javax.swing.*;
 
 public class VisionFrame extends JFrame {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final String TITLE = "2019 Talon Vision";
 
@@ -15,8 +15,8 @@ public class VisionFrame extends JFrame {
 	 * the width and height by the resize
 	 */
 
-	public static final int width = 320;
-	public static final int height = 240;
+	public static final int width = 800;
+	public static final int height = 600;
 
 	public final ImageIcon icon = getIcon();
 

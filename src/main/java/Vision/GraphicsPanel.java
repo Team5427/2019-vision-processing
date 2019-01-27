@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.File;
 import java.util.ArrayList;
 import java.net.URL;
 
@@ -12,12 +11,12 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.opencv.core.*;
-import org.opencv.imgproc.Imgproc;
-
+import Networking.Server;
 import Vision.HalfTarget.TargetSide;
 
 public class GraphicsPanel extends JPanel implements Runnable {
 
+    private static final long serialVersionUID = 1L;
     /**
      * Stores the initial image from the axis camera.
      */
@@ -37,6 +36,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
      * An array list that stores every vision target that appears on-screen.
      */
     public static ArrayList<Target> targetsInFrame;
+    
+    public static ArrayList<HalfTarget> badTargets;
+    public static ArrayList<HalfTarget> allTargets;
 
     /**
      * The filters that the image goes through to find the contours of the
@@ -87,47 +89,50 @@ public class GraphicsPanel extends JPanel implements Runnable {
      */
     public static final double DISTANCE_TOLERANCE = 25;
 
-    /**
-     * The rgb colors used for the vision targets
-     */
-    public static final int LEFT_COLOR = -15340065; // Purple
-    public static final int RIGHT_COLOR = -15418960; // Cyan
 
     public GraphicsPanel(int w, int h) {
         super();
         setSize(w, h);
+        // try {
+        //     this.image = ImageIO.read(new File("Images/VisionImages2019/RocketPanelStraightDark24in.jpg"));
 
-        try {
-            url = new URL("http://169.254.101.224/axis-cgi/jpg/image.cgi");
-        } catch (Exception e) {
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
+        // imageToContours(image);
+        // repaint();
+        Server.start();
+        try{
+        url = new URL("http://10.54.27.62/axis-cgi/jpg/image.cgi");
+        }catch(Exception e) {
             e.printStackTrace();
         }
         new Thread(this).start();
     }
 
     public void run() {
-        while (true) {
-            try {
-                Thread.sleep(1000 / 20);
+        while(true) {
+            try{
+            Thread.sleep(1000/20);
+            image = ImageIO.read(url);
+            imageToContours(image);
 
-                // Takes the image from the Axis Camera and sends it to the imageToContours
-                // method.
-                image = ImageIO.read(url);
-                imageToContours(image);
+            focalLen = image.getWidth()/(2*Math.tan(Math.toRadians(FOV/2)));
+            imageCenterX = image.getWidth()/2 - 0.5;
+            imageCenterY = image.getHeight()/2 - 0.5;
 
-                // Calculates the focal length of the camera.
-                focalLen = image.getWidth() / (2 * Math.tan(Math.toRadians(this.FOV / 2)));
-
-                // Calculates the center of the image.
-                imageCenterX = image.getWidth() / 2 - 0.5;
-                imageCenterY = image.getHeight() / 2 - 0.5;
-
-                repaint();
-            } catch (Exception e) {
+            repaint();
+            }catch(Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
+    /**
+     * The rgb colors used for the vision targets
+     */
+    public static final int LEFT_COLOR = -15340065;  //Purple
+    public static final int RIGHT_COLOR = -15418960; //Cyan
 
     public void imageToContours(BufferedImage image) {
 
@@ -141,12 +146,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         // Initializes the array list for targets.
         targetsInFrame = new ArrayList<>();
+        badTargets = new ArrayList<>();
+        allTargets = new ArrayList<>();
 
-        // Initializes the image that stores the contours.
-        BufferedImage contoursImage = new BufferedImage(320, 240, BufferedImage.TYPE_4BYTE_ABGR);
-
-        // Adds each contour found in the image to the image if it fits the requirements
-        // to be a vision target.
+        BufferedImage contour = new BufferedImage(800, 600, BufferedImage.TYPE_4BYTE_ABGR);
         for (Object currentContour : contours) {
 
             // Stores all the points in the current contour.
@@ -154,22 +157,15 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
             // Creates a half target based on the array of points.
             HalfTarget currentHalfTarget = new HalfTarget(points);
-
-            // The contour must look similar to a rectangle
-            if (currentHalfTarget.height < (currentHalfTarget.width * 2)
-                    || currentHalfTarget.height > (currentHalfTarget.width * 5)) {
+            if(currentHalfTarget.height<(currentHalfTarget.width*2)||currentHalfTarget.height>(currentHalfTarget.width*4))
+            {
+                badTargets.add(currentHalfTarget);
+                // System.out.println(currentHalfTarget.height/currentHalfTarget.width);
+                // System.out.println("Invalid Halftarget!!!");
                 continue;
             }
-
-            // Adds the half target to the list of all half targets
             halfTargetsInFrame.add(currentHalfTarget);
-
-            // Draws the half target to the contour image, with different colors for left
-            // and right contours.
-            for (Point p : points) {
-                contoursImage.setRGB((int) p.x, (int) p.y,
-                        (currentHalfTarget.side == TargetSide.Right) ? RIGHT_COLOR : LEFT_COLOR);
-            }
+            // Adds the half target to the list of all half targets
         }
 
         // Splits the half targets into left and right targets.
@@ -199,9 +195,9 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     leftmostLeftTarget = h;
             }
 
-            // Removes right targets that are left of the leftmost left target.
             HalfTarget leftmostRightTarget = rightTargets.get(0);
-            while (leftmostRightTarget.center.x < leftmostLeftTarget.center.x) {
+            while(leftmostRightTarget.center.x<leftmostLeftTarget.center.x) {
+                allTargets.add(leftmostRightTarget);
                 rightTargets.remove(leftmostRightTarget);
                 if (rightTargets.isEmpty())
                     return;
@@ -216,21 +212,31 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
             // Checks if the target is a valid one.
             Target t = new Target(leftmostLeftTarget, leftmostRightTarget, true);
-            if (isValidTarget(t) > 0)
+            if(isValidTarget(t)>0) {
+                allTargets.add(leftmostLeftTarget);
                 leftTargets.remove(leftmostLeftTarget);
-            else if (isValidTarget(t) < 0)
+            }
+            else if(isValidTarget(t)<0) {
+                allTargets.add(leftmostRightTarget);
                 rightTargets.remove(leftmostRightTarget);
+            }
             else {
                 targetsInFrame.add(t);
-                System.out.println("\t\t" + targetOffset(t));
+                //System.out.println("\t\t" + targetOffset(t));
                 leftTargets.remove(leftmostLeftTarget);
                 rightTargets.remove(leftmostRightTarget);
             }
 
-            System.out.println("******* z: " + t.solveForZ() + "*************************");
+            double d = -t.solveForZ();
+            double aH = -t.getHorAngle();
+            double aV = -t.getVertAngle();
+
+            System.out.println("******* z: "+d+"*************************");
+            System.out.println("******* aH: "+Math.toDegrees(aH)+"*************************");
+            System.out.println("******* aV: "+Math.toDegrees(aV)+"*************************\n\n");
+
+            Server.send(d+" "+aH);
         }
-        // this.contours = new MatOfPoint[contours.length];
-        // this.contourImage = contour;
     }
 
     public static final int tolerance = 10;
@@ -241,18 +247,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
         return offset;
     }
 
-    /**
-     * Checks if the target is valid based on the ratio between the height/width of
-     * the targets to the distance between the two half targets.
-     * 
-     * @return 1 if the the distance is too wide, -1 if the distance is too thin, 0
-     *         if it is a valid target.
-     */
-    public int isValidTarget(Target t) {
-        double idealTapeDist = ((t.getAvgHeight() / this.HEIGHT_PIX_RATIO) + (t.getAvgWidth() / this.WIDTH_PIX_RATIO))/ 2;
-        if (Math.abs(idealTapeDist - t.getTapeDist()) > this.DISTANCE_TOLERANCE)
+    //returns -1 if too close, 1 if too far, 0 if valid target
+    public int isValidTarget(Target t)
+    {
+
+        double idealTapeDist = ((t.getAvgHeight()/HEIGHT_PIX_RATIO)+(t.getAvgWidth()/WIDTH_PIX_RATIO))/2;
+        if(Math.abs(idealTapeDist-t.getTapeDist())>DISTANCE_TOLERANCE)
             return 1;
-        else if (Math.abs(idealTapeDist - t.getTapeDist()) > this.DISTANCE_TOLERANCE)
+        else if(Math.abs(idealTapeDist-t.getTapeDist())>DISTANCE_TOLERANCE)
             return -1;
         else
             return 0;
@@ -263,8 +265,8 @@ public class GraphicsPanel extends JPanel implements Runnable {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(Color.RED);
-        g.drawLine(0, 120, 320, 120);
-        g.drawLine(160, 0, 160, 240);
+        g.drawLine(0, 300, 800, 300);
+        g.drawLine(400, 0, 400, 600);
         // g.drawImage(contourImage, 0, 0, null);
         for (Target t : targetsInFrame) {
             HalfTarget left = t.left;
@@ -297,6 +299,41 @@ public class GraphicsPanel extends JPanel implements Runnable {
                     g.fillOval((int) p.x - 2, (int) p.y - 2, 4, 4);
             }
             // System.out.println("DifferenceRatio: "+t.differenceRatio);
+        }
+
+        for(HalfTarget h:badTargets)
+        {
+            for(Point p : h.points)
+            {
+                g.setColor(Color.RED);
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+                g.setColor(Color.BLACK);
+                if(h.topLeft.x == p.x && h.topLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.topRight.x == p.x && h.topRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomLeft.x == p.x && h.bottomLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomRight.x == p.x && h.bottomRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+            }
+        }
+        for(HalfTarget h:allTargets)
+        {
+            for(Point p : h.points)
+            {
+                g.setColor(Color.ORANGE);
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
+                g.setColor(Color.BLACK);
+                if(h.topLeft.x == p.x && h.topLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.topRight.x == p.x && h.topRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomLeft.x == p.x && h.bottomLeft.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+                if(h.bottomRight.x == p.x && h.bottomRight.y == p.y)
+                    g.fillOval((int)p.x-2, (int)p.y-2, 4, 4);
+            }
         }
     }
 

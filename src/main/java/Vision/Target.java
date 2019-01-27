@@ -1,8 +1,6 @@
 package Vision;
 
-import static org.junit.Assert.assertNotNull;
 
-import javax.lang.model.util.ElementScanner6;
 
 import org.opencv.core.*;
 
@@ -63,16 +61,25 @@ public class Target {
         return getYOverZ()/getXOverZ();
     }
     public double getConstant4() {
-        return 45; //inches, height of target - height of camera
+        return 9.4; //inches, height of target - height of camera
     }
     public double solveForX() {
         return getConstant4()/getConstant3();
     }
     public double solveForZ() {
-        return solveForX()/getXOverZ();
+        //double d =  solveForX()/getXOverZ();
+        return getConstant4()/(Math.tan(getVertAngle()));
     }
     public double getHorAngle() {
-        return Math.atan(solveForX());
+        double a =  Math.atan(getXOverZ());
+
+        return a;
     }
+    public double getVertAngle() {
+        double a =  Math.atan(getYOverZ());
+
+        return a;
+    }
+
 
 }
