@@ -75,6 +75,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
     public static ArrayList<Target> targetsInFrame;
     public static ArrayList<HalfTarget> badTargets;
     public static ArrayList<HalfTarget> allTargets;
+    public static ArrayList<Target> notLargest;
 
     public void imageToContours(BufferedImage image) {
         pipeline.process(bufferedImageToMat(image));
@@ -84,6 +85,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
         targetsInFrame = new ArrayList<>();
         badTargets = new ArrayList<>();
         allTargets = new ArrayList<>();
+        notLargest = new ArrayList<>();
 
         BufferedImage contour = new BufferedImage(800, 600, BufferedImage.TYPE_4BYTE_ABGR);
         for (Object currentContour : contours) {
@@ -171,6 +173,31 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
             Server.send(d+" "+aH);
         }
+
+        //goes through the current targets in the frame and finds the one with the largest height and width. 
+        if(targetsInFrame.size()>0)
+        {
+            Target largestTarget = targetsInFrame.get(0);
+            double largestWidth = largestTarget.getAvgWidth();
+            double largestHeight = largestTarget.getAvgHeight();
+            for(Target t: targetsInFrame)
+            {
+                if(t.getAvgHeight() > largestHeight && t.getAvgWidth() > largestWidth)
+                {
+                    largestTarget = t;
+                    largestWidth = largestTarget.getAvgWidth();
+                    largestHeight = largestTarget.getAvgHeight();
+                }
+            }
+
+            //adds the smallers targets to an arraylist, which will be used to draw the targets separately
+            //paint() will draw these as red, but they will not be removed from the list of valid targets
+            for(Target t : targetsInFrame)
+            {
+                if(t.getAvgHeight() != largestHeight && t.getAvgWidth() != largestWidth)
+                    notLargest.add(t);
+            }
+        }
         // this.contours = new MatOfPoint[contours.length];
         // this.contourImage = contour;
     }
@@ -221,7 +248,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
             HalfTarget right = t.right;
             for(Point p : left.points)
             {
-                g.setColor(new Color(GraphicsPanel.LEFT_COLOR));
+                if(notLargest.size() > 0 && notLargest.contains(t))
+                    g.setColor(Color.RED);
+                else
+                    g.setColor(new Color(GraphicsPanel.LEFT_COLOR));
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
                 g.setColor(Color.BLACK);
                 if(left.topLeft.x == p.x && left.topLeft.y == p.y)
@@ -236,7 +266,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
             }
             for(Point p : right.points)
             {
-            g.setColor(new Color(GraphicsPanel.RIGHT_COLOR));
+                if(notLargest.size() > 0 && notLargest.contains(t))
+                    g.setColor(Color.RED);
+                else
+                    g.setColor(new Color(GraphicsPanel.RIGHT_COLOR));
                 g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
                 g.setColor(Color.BLACK);
                 if(right.topLeft.x == p.x && right.topLeft.y == p.y)
