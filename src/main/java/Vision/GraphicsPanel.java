@@ -58,6 +58,7 @@ public class GraphicsPanel extends JPanel implements Runnable {
             image = ImageIO.read(url);
             imageToContours(image);
 
+            //Calculates the focal length of the camera
             focalLen = image.getWidth()/(2*Math.tan(Math.toRadians(FOV/2)));
             imageCenterX = image.getWidth()/2 - 0.5;
             imageCenterY = image.getHeight()/2 - 0.5;
@@ -69,12 +70,28 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
     }
 
+    //colors used to draw largest target to screen
     public static final int LEFT_COLOR = -15340065;  //Purple
     public static final int RIGHT_COLOR = -15418960; //Cyan
     
+    /**
+     * stores the valid targets in the frame
+      */
     public static ArrayList<Target> targetsInFrame;
+
+    /**
+     * is added to for invalid targets and what is read as a target but has incorrect proportions
+     */
     public static ArrayList<HalfTarget> badTargets;
+
+    /**
+     * stores all targets, valid and invalid
+     */
     public static ArrayList<HalfTarget> allTargets;
+
+    /**
+     * targets that aren't the largest
+     */
     public static ArrayList<Target> notLargest;
 
     public void imageToContours(BufferedImage image) {
