@@ -17,7 +17,7 @@ import Vision.HalfTarget.TargetSide;
 public class GraphicsPanel extends JPanel implements Runnable {
 
     private static final long serialVersionUID = 1L;
-
+    BufferedImage image;
     /**
      * An array that contains all of the contours in the image.
      */
@@ -28,11 +28,6 @@ public class GraphicsPanel extends JPanel implements Runnable {
      */
     BufferedImage contourImage;
 
-    /**
-     * An array list that stores every vision target that appears on-screen.
-     */
-    public static ArrayList<Target> targetsInFrame = new ArrayList<>();
-    public static ArrayList<HalfTarget> badTargets = new ArrayList<>();
 
     /**
      * The filters that the image goes through to find the contours of the
@@ -103,8 +98,12 @@ public class GraphicsPanel extends JPanel implements Runnable {
         imageCenterY = getHeight()/2 - 0.5;
         while(true) {
             try{
-            Thread.sleep((int)(1000*CameraFrameRate));
-            imageToContours(ImageIO.read(url));
+            Thread.sleep(1000/20);
+            image = ImageIO.read(url);
+            imageToContours(image);
+
+            
+
             repaint();
             }catch(Exception e) {
                 e.printStackTrace();
@@ -112,11 +111,29 @@ public class GraphicsPanel extends JPanel implements Runnable {
         }
     }
 
-    /**
-     * The rgb colors used for the vision targets
-     */
+    //colors used to draw largest target to screen
     public static final int LEFT_COLOR = -15340065;  //Purple
     public static final int RIGHT_COLOR = -15418960; //Cyan
+    
+    /**
+     * stores the valid targets in the frame
+      */
+    public static ArrayList<Target> targetsInFrame;
+
+    /**
+     * is added to for invalid targets and what is read as a target but has incorrect proportions
+     */
+    public static ArrayList<HalfTarget> badTargets;
+
+    /**
+     * stores all targets, valid and invalid
+     */
+    public static ArrayList<HalfTarget> allTargets;
+
+    /**
+     * targets that aren't the largest
+     */
+    public static ArrayList<Target> notLargest;
 
     public void imageToContours(BufferedImage image) {
 
@@ -127,6 +144,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
         // The array list that stores all of the possible half targets
         ArrayList<HalfTarget> halfTargetsInFrame = new ArrayList<>();
+        targetsInFrame = new ArrayList<>();
+        badTargets = new ArrayList<>();
+        allTargets = new ArrayList<>();
+        notLargest = new ArrayList<>();
 
         // Initializes the array list for targets.
         targetsInFrame.clear();
@@ -207,16 +228,56 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 rightTargets.remove(leftmostRightTarget);
             }
 
-            double d = -t.solveForZ();
-            double aH = -t.getHorAngle();
-            double aV = -t.getVertAngle();
+            // double d = -t.solveForZ();
+            // double aH = -t.getHorAngle();
+            // double aV = -t.getVertAngle();
+
+            // System.out.println("******* z: "+d+"*************************");
+            // System.out.println("******* aH: "+Math.toDegrees(aH)+"*************************");
+            // System.out.println("******* aV: "+Math.toDegrees(aV)+"*************************\n\n");
+
+            // Server.send(d+" "+aH);
+        }
+
+        //goes through the current targets in the frame and finds the one with the largest height and width. 
+        if(targetsInFrame.size()>0)
+        {
+            Target largestTarget = targetsInFrame.get(0);
+            double largestWidth = largestTarget.getAvgWidth();
+            double largestHeight = largestTarget.getAvgHeight();
+            for(Target t: targetsInFrame)
+            {
+                if(t.getAvgHeight() > largestHeight && t.getAvgWidth() > largestWidth)
+                {
+                    largestTarget = t;
+                    largestWidth = largestTarget.getAvgWidth();
+                    largestHeight = largestTarget.getAvgHeight();
+                }
+            }
+
+            double d = -largestTarget.solveForZ();
+            double aH = -largestTarget.getHorAngle();
+            double aV = -largestTarget.getVertAngle();
 
             System.out.println("******* z: "+d+"*************************");
             System.out.println("******* aH: "+Math.toDegrees(aH)+"*************************");
             System.out.println("******* aV: "+Math.toDegrees(aV)+"*************************\n\n");
 
             Server.send(d+" "+aH);
+
+            //adds the smallers targets to an arraylist, which will be used to draw the targets separately
+            //paint() will draw these as red, but they will not be removed from the list of valid targets
+            for(Target t : targetsInFrame)
+            {
+                if(t.getAvgHeight() != largestHeight && t.getAvgWidth() != largestWidth)
+                    notLargest.add(t);
+            }
         }
+        else {
+            Server.send("invisible");
+        }
+        // this.contours = new MatOfPoint[contours.length];
+        // this.contourImage = contour;
     }
 
     public static final int tolerance = 10;
@@ -251,9 +312,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
         for (Target t : targetsInFrame) {
             HalfTarget left = t.left;
             HalfTarget right = t.right;
-            for (Point p : left.points) {
-                g.setColor(new Color(GraphicsPanel.LEFT_COLOR));
-                g.drawLine((int) p.x, (int) p.y, (int) p.x, (int) p.y);
+            for(Point p : left.points)
+            {
+                if(notLargest.size() > 0 && notLargest.contains(t))
+                    g.setColor(Color.RED);
+                else
+                    g.setColor(new Color(GraphicsPanel.LEFT_COLOR));
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
                 g.setColor(Color.BLACK);
                 if (left.topLeft.x == p.x && left.topLeft.y == p.y)
                     g.fillOval((int) p.x - 2, (int) p.y - 2, 4, 4);
@@ -264,9 +329,13 @@ public class GraphicsPanel extends JPanel implements Runnable {
                 if (left.bottomRight.x == p.x && left.bottomRight.y == p.y)
                     g.fillOval((int) p.x - 2, (int) p.y - 2, 4, 4);
             }
-            for (Point p : right.points) {
-                g.setColor(new Color(GraphicsPanel.RIGHT_COLOR));
-                g.drawLine((int) p.x, (int) p.y, (int) p.x, (int) p.y);
+            for(Point p : right.points)
+            {
+                if(notLargest.size() > 0 && notLargest.contains(t))
+                    g.setColor(Color.RED);
+                else
+                    g.setColor(new Color(GraphicsPanel.RIGHT_COLOR));
+                g.drawLine((int)p.x, (int)p.y, (int)p.x, (int)p.y);
                 g.setColor(Color.BLACK);
                 if (right.topLeft.x == p.x && right.topLeft.y == p.y)
                     g.fillOval((int) p.x - 2, (int) p.y - 2, 4, 4);
