@@ -13,6 +13,11 @@ import javax.swing.JPanel;
 import org.opencv.core.*;
 import Networking.Server;
 import Vision.HalfTarget.TargetSide;
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoSource;
+import edu.wpi.first.cameraserver.CameraServer;
 
 public class GraphicsPanel extends JPanel implements Runnable {
 
@@ -80,15 +85,30 @@ public class GraphicsPanel extends JPanel implements Runnable {
 
     public static final double CameraFrameRate = 1/15;
 
+    public static CameraServer camServer;
+    public static UsbCamera cam1;
+    public static CvSink cvSink;
+
+    public static Mat source;
+
+
     public GraphicsPanel(int w, int h) {
         super();
         setSize(w, h);
+        camServer = CameraServer.getInstance();
+
         Server.start();
-        try{
-        url = new URL("http://10.54.27.62/axis-cgi/jpg/image.cgi");
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+        cam1 = camServer.startAutomaticCapture(0);
+        cam1.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen);
+        cam1.setBrightness(0);
+        cam1.setExposureManual(0);
+        cam1.setWhiteBalanceManual(0);
+        cam1.setResolution(w, h);
+
+        cvSink = camServer.getVideo(cam1);    
+
+        source = new Mat();
+
         new Thread(this).start();
     }
 
@@ -99,8 +119,14 @@ public class GraphicsPanel extends JPanel implements Runnable {
         while(true) {
             try{
             Thread.sleep(1000/20);
-            image = ImageIO.read(url);
-            imageToContours(image);
+            // image = ImageIO.read(url);
+            
+            cvSink.grabFrame(source);
+            
+            
+            imageToContours(source);
+
+
 
             
 
@@ -135,10 +161,10 @@ public class GraphicsPanel extends JPanel implements Runnable {
      */
     public static ArrayList<Target> notLargest;
 
-    public void imageToContours(BufferedImage image) {
+    public void imageToContours(Mat image) {
 
         // Converts the image from the Axis Camera to an array of contours.
-        pipeline.process(bufferedImageToMat(image));
+        pipeline.process(image);
         ArrayList<MatOfPoint> pointsList = pipeline.filterContoursOutput();
         Object[] contours = pointsList.toArray();
 

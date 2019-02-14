@@ -18,9 +18,9 @@ public class Target {
     /**
      * From Manual - In inches
      */
-    public static final double HEIGHT_HATCH         = 39.125;
+    public static final double HEIGHT_BALL         = 39.125;
     public static final double HEIGHT_TARGET        = 21.5;
-    public static final double HEIGHT_BALL          = 31.5;
+    public static final double HEIGHT_HATCH          = 31.5;
     public static final double HEIGHT_CAMERA        = 11;
     public static final double TARGET_SEPERATION    = 8;
 
@@ -60,7 +60,7 @@ public class Target {
         return getYOverZ()/getXOverZ();
     }
     public double getConstant4() {
-        return HEIGHT_TARGET - HEIGHT_CAMERA; //inches, height of target - height of camera
+        return HEIGHT_HATCH - HEIGHT_CAMERA; //inches, height of target - height of camera
                     //9.4 for target
     }
     public double solveForX() {
